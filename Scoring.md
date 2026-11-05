@@ -11,4 +11,10 @@ Scores are weighted toward password length because modern NIST guidance emphasiz
 
 
 ## Understanding Scores
-0-5 = Bad 6-15 = Weak 16-30 = Strong 31+ = Excellent
+
+| Score Range | Rating |
+|------------|---------|
+| 0-5 | Bad |
+| 6-15 | Weak |
+| 16-30 | Strong |
+| 31+ | Excellent |
