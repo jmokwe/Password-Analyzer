@@ -28,3 +28,8 @@ The baselines incorporated into this program were primarily from:
 New Versions of this program will come soon:
 * **Leaked Password Detection:** New versions of the Password Analytics tool will detect common or leaked passwords and alert you whether a password you typed is safe to use.
 * **Word Pattern Recognition:** New Versions of the Password Analytics tool will detect plain-text dictionary words to reduce vulnerabilities related to correlations with personal information.
+
+## Example Screenshots:
+![App Screenshot](screenshots/weak_password.png)
+![App Screenshot](screenshots/bad_password.png)
+![App Screenshot](screenshots/strong_password.png)
