@@ -30,6 +30,9 @@ New Versions of this program will come soon:
 * **Word Pattern Recognition:** New Versions of the Password Analytics tool will detect plain-text dictionary words to reduce vulnerabilities related to correlations with personal information.
 
 ## Example Screenshots:
-![App Screenshot](screenshots/weak_password.png)
+**Bad Password Example**  
 ![App Screenshot](screenshots/bad_password.png)
+**Weak Password Example**  
+![App Screenshot](screenshots/weak_password.png)
+**Strong Password Example**  
 ![App Screenshot](screenshots/strong_password.png)
