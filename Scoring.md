@@ -7,6 +7,7 @@
 * Special characters
 * Missing character categories
 * Repeated-character detection
+* If a password matches an entry in rockyou.txt or a custom wordlist, the score is immediately reset to 0 regardless of length or character complexity.
 Scores are weighted toward password length because modern NIST guidance emphasizes longer passwords over strict composition requirements.
 
 
