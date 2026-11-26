@@ -24,7 +24,7 @@
 # --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 
                 #########################################################
-                #            Password Analytics Tool (V2)               #
+                #            Password Analytics Tool (V3)               #
                 #########################################################
 
 
@@ -42,9 +42,67 @@ session = 0
 
 
 # These are the common special charaters that are normally allowed.
-special_char = ["-", "_", "!", ".", "@", "#", "$", "?", "&", " "]
+special_char = ["-", "_", "!", ".", "@", "#", "$", "?", "&", " ", "+"]
 # Note: organizations often restrict specific special characters such as an apostrophe ('), quotation marks ("), etc. to prevent code injections
 numeric_char = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
+
+
+LEET_TABLE = str.maketrans({
+    "@": "a",
+    "4": "a",
+    "3": "e",
+    "1": "i",
+    "!": "i",
+    "0": "o",
+    "$": "s",
+    "5": "s",
+    "7": "t",
+    "+": "t",
+})
+
+PII_LABELS = {
+    "PERSON": "This password might contain name(s).",
+    "ORG": "This password might contain organization(s).",
+    "GPE": "This password might contain geopolitical location(s).",
+    "LOC": "This password might contain location(s).",
+    "FAC": "This password might contain facility name(s).",
+    "NORP": "This password might contain nationalities, religions, or political groups.",
+}
+
+Advanced_Analytics = False
+import_success = False
+nltk = None
+spacy = None
+names = None
+
+def Advanced_Analytics_Imports():
+    global import_success, nltk, spacy, names, nlp
+    try:
+        print("Loading Additional Analytic Tools...")
+        import nltk
+        import spacy
+        from nltk.corpus import names
+        from spacy.cli import download
+        import_success = True
+        print("Success!")
+        print(f'[Status: {GREEN}Enabled{RESET}] Personally Identifiable Information Scanner')
+        try:
+            nlp = spacy.load("en_core_web_sm")
+        except OSError:
+            print("Model not found. Downloading en_core_web_sm...")
+            download("en_core_web_sm") # Requires internet access.
+            nlp = spacy.load("en_core_web_sm")
+            
+            
+    except ImportError:
+        print("One or more packages are not imported. Please refer to the Github README.md for the required installs.")
+        import_success = False
+        print(f'[Status: {RED}Disabled{RESET}] Personally Identifiable Information Scanner')
+
+
+
+
+
 
 def password_Analytics(password,filepath):
     strength_score = 0
@@ -228,19 +286,75 @@ def password_Analytics(password,filepath):
 
 
 def leak_checker(password,filepath):
+    if hash_table == False:
+
+        try:
+            with open(filepath,"r",encoding="latin-1") as file:
+                for line in file:
+                    clean_line = line.strip()
+
+                    if password == clean_line:
+                        print(f'{BLINK}{RED}SECURITY WARNING{RESET}: Password was found in a data leak.')
+                        return True
+            return False
+        except FileNotFoundError:
+            print(f'[{RED}SYSTEM ALERT{RESET}] File missing or could not be found. Skipping Password Leak program.')
+            return False
+    else:
+        if password in hash_table_password:
+            print(f'{BLINK}{RED}SECURITY WARNING{RESET}: Password was found in a data leak.')
+            return True
+        return False
+    
+
+
+
+def hash_table_load(filepath):
     try:
         with open(filepath,"r",encoding="latin-1") as file:
-            for line in file:
-                clean_line = line.strip()
-
-                if password == clean_line:
-                    print(f'{BLINK}{RED}SECURITY WARNING{RESET}: Password was found in a data leak.')
-                    return True
-        return False
+            leaked_password = {line.strip() for line in file}
+        return leaked_password
     except FileNotFoundError:
         print(f'[{RED}SYSTEM ALERT{RESET}] File missing or could not be found. Skipping Password Leak program.')
-        return False
+        return set()
 
+####----+----+----########----+----+----########----+----+----########----+----+----####
+####----+----+----########----+----+----########----+----+----########----+----+----####
+####----+----+----########----+----+----########----+----+----########----+----+----####
+####----+----+----########----+----+----########----+----+----########----+----+----####
+
+nlp = None
+
+def pii_Detection(password):
+    warnings = set()
+    doc = nlp(password)
+    for flag in doc.ents:
+        if flag.label_ in PII_LABELS:
+            warnings.add(PII_LABELS[flag.label_])
+
+    decoded = password.lower().translate(LEET_TABLE)
+    cleaned_alpha = "".join(char for char in decoded if char.isalpha())
+    
+    if cleaned_alpha: #Runs if and only if the string is not empty 
+        doc_translated = nlp(cleaned_alpha.capitalize())
+        for flag in doc_translated.ents:
+            if flag.label_ in PII_LABELS and flag.label_ != "ORG" : #Removed ORG because it was severely Overfitting
+                warnings.add(PII_LABELS[flag.label_])
+        
+        if PII_LABELS["PERSON"] not in warnings:
+            if any(name in cleaned_alpha for name in known_names):
+                warnings.add(PII_LABELS["PERSON"])    
+    
+    for warning in warnings:
+        print(warning)
+
+    return bool(warnings)
+
+
+####----+----+----########----+----+----########----+----+----########----+----+----####
+####----+----+----########----+----+----########----+----+----########----+----+----####
+####----+----+----########----+----+----########----+----+----########----+----+----####
+####----+----+----########----+----+----########----+----+----########----+----+----####
 
 
 
@@ -256,6 +370,7 @@ custom_list = False
 default_wordlist_settings = 'disabled'
 default_wordlist = "rockyou.txt"
 leak_check_status = False
+hash_table = False
 
 if __name__ == "__main__":
 
@@ -300,6 +415,8 @@ if __name__ == "__main__":
     else:
         print(f"Invalid Input. \n [Status: {RED}DISABLED{RESET}] Password Leak tool")    
 
+
+
     #    +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
     #    +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
     #    +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
@@ -328,13 +445,72 @@ if __name__ == "__main__":
     else:
         print(f"Invalid Input. Using Default Wordlist.")    
 
+
     if wordlist_import and not custom_list:
         default_wordlist = script_dir / "rockyou.txt"
+
+        if wordlist_import:
+                hash_table_settings = str(input("Enable Password Search Optimization? [Note: This uses the Host user's RAM.] (Y/N)  "))
+                if hash_table_settings.lower() in ['exit', 'quit','q']:
+                    print("Closing Program...")
+                    raise SystemExit
+                elif hash_table_settings.lower() in ['y', 'yes','yeah']:
+                    hash_table = True
+                    print("Loading...")
+                    hash_table_password = hash_table_load(default_wordlist)
+                    print(f'[Status: {GREEN}Enabled{RESET}]: Optimized Password Search')
+                elif hash_table_settings.lower() in ['n', 'no','nah']:
+                    hash_table = False
+                    print(f'[Status: {RED}Disabled{RESET}] Optimized Password Search')
+                else:
+                    print(f"Invalid Input. \n [Status: {RED}Disabled{RESET}] Optimized Password Search")
+
+
         print("The program will alert you if your password is found in a data leak")
     elif wordlist_import and custom_list:
         print("Please make sure your custom wordlist is in the same folder as the program.")
         user_list = str(input("What is the file name of the wordlist?(Include the file extension)     "))
         default_wordlist = script_dir / user_list
+
+        if wordlist_import:
+                hash_table_settings = str(input("Enable Password Search Optimization? [Note: This uses the Host user's RAM.] (Y/N)"))
+                if hash_table_settings.lower() in ['exit', 'quit','q']:
+                    print("Closing Program...")
+                    raise SystemExit
+                elif hash_table_settings.lower() in ['y', 'yes','yeah']:
+                    hash_table = True
+                    print("Loading...")
+                    hash_table_password = hash_table_load(default_wordlist)
+                    print(f'[Status: {GREEN}Enabled{RESET}]: Optimized Password Search')
+                elif hash_table_settings.lower() in ['n', 'no','nah']:
+                    hash_table = False
+                    print(f'[Status: {RED}Disabled{RESET}] Optimized Password Search')
+                else:
+                    print(f"Invalid Input. \n [Status: {RED}Disabled{RESET}] Optimized Password Search")
+
+    Advanced_Analytics_Status = input("Enable Advanced Analytics? (Y/N):  ")
+    if Advanced_Analytics_Status.lower() in ['exit', 'quit','q']:
+        print("Closing Program...")
+        program_loop = False
+        raise SystemExit
+    elif Advanced_Analytics_Status.lower() in ['y', 'yes','yeah']:
+        Advanced_Analytics = True
+        Advanced_Analytics_Imports()
+        if import_success:
+            nltk.download('names', quiet=True)
+            # nlp = spacy.load("en_core_web_sm")
+            known_names = {name.lower() for name in names.words() if len(name) >= 5}
+        else:
+            Advanced_Analytics = False
+        
+    elif Advanced_Analytics_Status.lower() in ['n', 'no','nah']:
+        Advanced_Analytics = False    
+        print(f'[Status: {RED}Disabled{RESET}] Personally Identifiable Information Scanner')
+    else:
+        print("Invalid Input. Advanced Analytics Skipped.")
+        print(f'[Status: {RED}Disabled{RESET}] Personally Identifiable Information Scanner')      
+
+
 
     #    +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
     #    +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
@@ -359,6 +535,15 @@ if __name__ == "__main__":
             user_password = "Password123"
         
         password_Analytics(user_password,default_wordlist)
+        if Advanced_Analytics:
+            if pii_Detection(user_password):
+                print(f'{RED}WARNING{RESET}: Personally Identifiable Information Detected.')
+                print("Ensure passwords do not contain information related to you (Ignore If this is a Mistake).")
+                # print("(Ignore If this is a Mistake)")
+            else:
+                print("No Personally Identifiable Information Detected")
+        
+
         print("+", end='')
         print("-----+" * 8, "(" + str(session) +")")
 
