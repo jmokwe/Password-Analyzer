@@ -72,3 +72,8 @@ Bug Fixes and Updates of this program will come soon.
 ![App Screenshot](screenshots/weak_password.png)
 **Strong Password Example**  
 ![App Screenshot](screenshots/strong_password.png)
+**Personally Identifiable Information Scanner Example**
+![App Screenshot](screenshots/PII_detection.jpg)
+**Startup Prompts**
+![App Screenshot](screenshots/startup_prompts_Enabled.png)
+![App Screenshot](screenshots/startup_prompts_Disabled.png)
