@@ -64,16 +64,16 @@ Bug Fixes and Updates of this program will come soon.
 
 
 ## Example Screenshots:
-**Bad Password Example**  
+### Bad Password Example  
 ![App Screenshot](screenshots/bad_password.png)    
-**Bad Password With Hidden Typing Example**
+### Bad Password With Hidden Typing Example
 ![App Screenshot](screenshots/HiddenPassword_PasswordLeaker.png)  
-**Weak Password Example**  
-![App Screenshot](screenshots/weak_password.png)
-**Strong Password Example**  
+### Weak Password Example  
+![App Screenshot](screenshots/weak_password.png)  
+### Strong Password Example 
 ![App Screenshot](screenshots/strong_password.png)
-**Personally Identifiable Information Scanner Example**
-![App Screenshot](screenshots/PII_detection.jpg)
-**Startup Prompts**
+### Personally Identifiable Information Scanner Example
+![App Screenshot](screenshots/PII_detection.jpg)  
+  ### Startup Prompts
 ![App Screenshot](screenshots/startup_prompts_Enabled.png)
 ![App Screenshot](screenshots/startup_prompts_Disabled.png)
